@@ -32,6 +32,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Debugging Info
+        shell: bash
+        run: |
+          npx verdaccio --info
+          npm -ddd
+          npm config get registry
       - name: Start npm Proxy
         shell: bash
         working-directory: ./proxy
