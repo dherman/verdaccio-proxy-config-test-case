@@ -1,0 +1,25 @@
+{
+  "name": "super-duper-library",
+  "version": "1.0.0",
+  "description": "A Super Duper Library",
+  "type": "module",
+  "exports": "./dist/src/index.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "types/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest ./dist",
+    "pretest": "npm run build"
+  },
+  "author": "Dave Herman <david.herman@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@tsconfig/node16": "^16.1.1",
+    "jest": "^29.7.0",
+    "typescript": "^5.2.2"
+  }
+}

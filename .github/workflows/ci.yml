@@ -1,0 +1,50 @@
+name: CI
+
+env:
+  NODE_VERSION: 18.x
+  PROXY: http://127.0.0.1:4873/
+  CIUSER: ci
+  CIEMAIL: ci@neon-bindings.com
+  CIPASS: dummycipassword
+
+on:
+  push:
+    # Prevent duplicate runs of this workflow on our own internal PRs.
+    branches:
+      - main
+      - next/*
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+    branches:
+      - main
+      - next/*
+
+jobs:
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Start npm Proxy
+        shell: bash
+        working-directory: ./proxy
+        timeout-minutes: 3
+        run: ./proxy.sh '${{ env.PROXY }}'
+      - name: Authenticate Proxy
+        shell: bash
+        run: npx npm-cli-adduser -u ${{env.CIUSER}} -p ${{env.CIPASS}} -e ${{env.CIEMAIL}} -r ${{env.PROXY}}
+      - name: Publish super-duper-library to proxy
+        shell: bash
+        run: npm publish ./super-duper-library --registry ${{env.PROXY}}
+      - name: Run smoke-test
+        shell: bash
+        working-directory: test/smoke-test
+        run: |
+          # Since package integrity checksums may vary depending on what versions
+          # are available in the proxy registry, we don't put the lockfile for this
+          # test in source control. This means we have to use `npm i`, not `npm ci`.
+          npm i --registry ${{ env.PROXY }} || (cat ../../proxy/proxy.log && exit 1)
+          npm test
