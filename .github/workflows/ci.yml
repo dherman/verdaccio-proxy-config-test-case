@@ -36,8 +36,6 @@ jobs:
         shell: bash
         run: |
           npx verdaccio --info
-          npm -ddd
-          npm config get registry
       - name: Start npm Proxy
         shell: bash
         working-directory: ./proxy
